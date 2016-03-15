@@ -2,7 +2,7 @@
 
 Spark + Tropo gaming app
 
-Can be used for various contests type: Song, Quizz,...
+Can be used for various types of contests: Quizz, Songs
 
 
 ## setup the bot
@@ -11,21 +11,27 @@ Can be used for various contests type: Song, Quizz,...
 
 - install the ContestBot (see spark/Readme.md) 
 
+
 ## starting up a contest
 
-/launch : launches a new contest
-- Bot says "new contest starting in XX minutes"
-- an audio is picked from the library
-- the room is called and the audio is played
+/launch &lt;contest name&gt; : launches a new contest
+- Bot says "new contest XXXX starting"
+- a contest is picked from the library (udio challenge, answer, creator)
+- the room is called by Tropo, participants join, and the audio is played
+
+Quizz example : I travel on the network. My best friend is a scripting language. CISCO APIs leverage me a lot. I am, I am ... 
+
 
 ## participants
 
-/guess &lt;contest attempt&gt; : participants make their attempt
-- Bot says whether participant found the contest answer or not
--- nice try <participant name>
+/guess &lt;contest attempt&gt; : participants take their chance
+- ContestBot says whether participant found the contest answer or not
+-- nice try from <participant name> 
 -- try again <participant name>
+-- BRAVO <participant name>
 
-after XX minutes, the bot gives an answer
+after XX minutes or tries, the bot would give the answer to all participants 
+
 
 ## add a contest
 
@@ -35,13 +41,13 @@ after XX minutes, the bot gives an answer
 
 # Future thoughts
 
-- add contest answer match %age rather than strict
+- add answer accuracy match rather than strict
 
 - add a retry option : the audio is replayed, and participants are given one more chance to win the contest
 
-- contest rating
+- contest rating by the participants (likes)
 
-- contributors get notified via SMS when their contest is used / found
+- contributors get notified via SMS when their contest is answered or liked by participants
 
 
 # How to run the ContestBot by yourself
@@ -49,6 +55,7 @@ after XX minutes, the bot gives an answer
 ## Configure Tropo
  
 see Readme.md in tropo/
+ 
  
 ## Start the Webhook
 

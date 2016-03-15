@@ -3,25 +3,26 @@ package main
 
 import (
 	"net/http"
+	"encoding/json"
+
 	"log"
 	"fmt"
+	"time"
 )
 
 
 func main() {
 
-	http.HandleFunc("/spark", sparkHandler)
+	port := "8080"
+	log.Print("Starting webhook, listening at :", port)
 
-	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "webhook is active")
-	})
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 
 // Read new message
-type NewMessagePayload struct {
+type NewMessageEvent struct {
 	ID string `json:"id"`
 	Name string `json:"name"`
 	Resource string `json:"resource"`
@@ -36,13 +37,39 @@ type NewMessagePayload struct {
 	   } `json:"data"`
 }
 
+type SparkMessage struct {
+	ID string `json:"id"`
+	RoomID string `json:"roomId"`
+	PersonID string `json:"personId"`
+	PersonEmail string `json:"personEmail"`
+	Created time.Time `json:"created"`
+	Text string `json:"text"`
+}
 
-func sparkHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		log.Fatal("Expecting POST for Spark Webhooks")
-		fmt.Fprintf(w, "I am the ContestBot, listening to POST methods and only those")
+
+func handler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		log.Print("Expecting POST method as I am a Spark Webhook")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "{ message:'I am the ContestBot, expecting POST as new messages are typed into the Spark Room' }"
 		return
 	}
 
-	// Read incoming message
+	// Read incoming event
+	decoder := json.NewDecoder(req.Body)
+	var event NewMessageEvent
+	if err := decoder.Decode(&event); err != nil {
+		log.Print("Could not parse json")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	log.Print("Processing event: %v", event)
+
+	// Retrieve message
+	
+	
+	
+	w.WriteHeader(http.StatusOK)
+	return
 }
+

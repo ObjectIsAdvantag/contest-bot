@@ -66,14 +66,14 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}
 	log.Print("Processing event: %v", event)
 
-	// Retrieve message
+	// Call Spark to retrieve message details, the text essentially
 	client, err := http.NewRequest("GET", "https://api.ciscospark.com/v1/messages/" + event.Data.ID, nil)
 	if err != nil {
 		log.Printf("Unexpected error while processing event: %s, retrieving message id: %s ", event.ID, event.Data.ID)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	token := "MmIzYTk0MWYtYzY2My00MjgzLThlZDQtOWU5ZmU1MzdiOTNiZTVhZWExOGEtM2Rh"
+	token := "SPARK-API-TOKEN-HERE"
 	client.Header.Add("Content-type", "application/json")
 	client.Header.Add("Authorization", "Bearer " + token)
 
@@ -84,7 +84,6 @@ func handler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Read message details
 	decoder = json.NewDecoder(response.Body)
 	var message SparkMessage
 	if err := decoder.Decode(&message); err != nil {

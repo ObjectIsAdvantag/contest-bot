@@ -1,4 +1,7 @@
-# WebHook registration
+#  Installation
+
+Add the webhook to the room you want the bot installed
+
 
 ##  Pick a room ID
 
@@ -13,7 +16,7 @@ Authorization	Bearer <your spark token here>
 200 OK
 
 
-##  Add the webhook to the room
+##  Register the webhook
 
 - Go to https://developer.ciscospark.com/endpoint-webhooks-post.html
 

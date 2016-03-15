@@ -8,6 +8,7 @@ all: build run
 
 .PHONY: goget
 goget:
+	go get github.com/spf13/viper
 
 .PHONY: clean
 clean:

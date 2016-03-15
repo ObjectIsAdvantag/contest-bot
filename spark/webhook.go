@@ -9,10 +9,18 @@ import (
 	"fmt"
 	"time"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 func main() {
 
+	// load env variables : BOT_SPARK_TOKEN and BOT_TROPO_TOKEN
+	viper.SetEnvPrefix("bot") // will be uppercased automatically
+	viper.BindEnv("spark_token") // will be uppercased automatically
+	viper.BindEnv("tropo_token") // will be uppercased automatically
+
+	// launch server
 	port := "8080"
 	log.Print("Starting webhook, listening at :", port)
 
@@ -21,7 +29,7 @@ func main() {
 }
 
 
-// Read new message
+// NewMessageEvent defines the JSON structure posted by Spark to WebHooks
 type NewMessageEvent struct {
 	ID string `json:"id"`
 	Name string `json:"name"`
@@ -37,6 +45,9 @@ type NewMessageEvent struct {
 	   } `json:"data"`
 }
 
+// SparkMessage defines the JSON structure retrieved when asking the Spark API for message details
+// Long story short: the NewMessageEvent structure contains a Data property which contains all message properties except the Text
+// A second call needs to be issued to get the message text in readable format (not crypted)
 type SparkMessage struct {
 	ID string `json:"id"`
 	RoomID string `json:"roomId"`
@@ -60,7 +71,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	var event NewMessageEvent
 	if err := decoder.Decode(&event); err != nil {
-		log.Print("Could not parse json to decode NewMessageEvent")
+		log.Printf("Could not parse json to decode NewMessageEvent, err: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -69,17 +80,16 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	// Call Spark to retrieve message details, the text essentially
 	client, err := http.NewRequest("GET", "https://api.ciscospark.com/v1/messages/" + event.Data.ID, nil)
 	if err != nil {
-		log.Printf("Unexpected error while processing event: %s, retrieving message id: %s ", event.ID, event.Data.ID)
+		log.Printf("Unexpected error; %s, while processing event: %s, retrieving message id: %s ", err, event.ID, event.Data.ID)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	token := "SPARK-API-TOKEN-HERE"
 	client.Header.Add("Content-type", "application/json")
-	client.Header.Add("Authorization", "Bearer " + token)
+	client.Header.Add("Authorization", "Bearer " + viper.GetString("spark_token"))
 
 	response, err := http.DefaultClient.Do(client)
 	if err != nil {
-		log.Printf("Unexpected error while retrieving contents for message id: %s ", event.ID, event.Data.ID)
+		log.Printf("Unexpected error: %s, while retrieving contents for message id: %s ", err, event.ID, event.Data.ID)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -87,11 +97,11 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	decoder = json.NewDecoder(response.Body)
 	var message SparkMessage
 	if err := decoder.Decode(&message); err != nil {
-		log.Print("Could not parse json to decode SparkMessage")
+		log.Printf("Could not decode SparkMessage, err: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Print("New message: %v", message)
+	log.Printf("New message: %v", message)
 
 	// Process message
 	go processMessage(message)

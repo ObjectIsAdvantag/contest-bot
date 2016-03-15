@@ -6,6 +6,9 @@ import (
 	"log"
 	"net/http"
 	"encoding/json"
+	"strings"
+
+	"github.com/spf13/viper"
 )
 
 
@@ -24,17 +27,16 @@ func processLaunch(message SparkMessage) {
 	client, err := http.NewRequest("GET", "https://api.ciscospark.com/v1/rooms/" + message.RoomID + "?showSipAddress=true", nil)
 	if err != nil {
 		log.Printf("Unexpected error, retrieving room details for RoomID: %s ", message.RoomID)
-		sendToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
+		sendMessageToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
 		return
 	}
-	token := "SPARK-API-TOKEN-HERE"
 	client.Header.Add("Content-type", "application/json")
-	client.Header.Add("Authorization", "Bearer " + token)
+	client.Header.Add("Authorization", "Bearer " + viper.GetString("spark_token"))
 
 	response, err := http.DefaultClient.Do(client)
 	if err != nil {
 		log.Printf("Unexpected error while retrieving contents for room with id: %s ", message.RoomID)
-		sendToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
+		sendMessageToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
 		return
 	}
 
@@ -42,23 +44,39 @@ func processLaunch(message SparkMessage) {
 	var room SparkRoom
 	if err := decoder.Decode(&room); err != nil {
 		log.Print("Could not parse json to decode SparkRoom")
-		sendToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
+		sendMessageToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
+		return
+	}
+	log.Print("Retrieved room details, sip number is " + room.SipAddress)
+
+	// Inform participants a contest is starting
+	sendMessageToRoom(message.RoomID, "A new contest is starting, are you ready ?")
+
+	// TODO: Pick a contest
+	contestAudio := "http://soundbible.com/mp3/I%20Love%20You%20Daddy-SoundBible.com-862095235.mp3"
+
+	// Call Tropo
+	payload := strings.NewReader("number=" + room.SipAddress +
+		"&audio=" + contestAudio +
+		"&token=" + viper.GetString("tropo_token"))
+	req, _ := http.NewRequest("POST", "https://api.tropo.com/1.0/sessions?action=create", payload)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("Communication error with Tropo, err: %s", err)
+		sendMessageToRoom(message.RoomID, "Contest failed to launch, Sorry for that, Try again later")
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("Tropo script invocation error: %s", err)
+		sendMessageToRoom(message.RoomID, "Contest failed to launch, Sorry for that, Try again later")
 		return
 	}
 
-	log.Print("Retrieved room details, sip number is " + room.SipAddress)
-
-	// Inform participants a contest is starting in XX minutes
-
-	// Call Tropo
-
+	log.Print("New contest launched successfully")
 }
 
-// Send a room
-func sendToRoom(roomID string, message string) {
-	log.Print("Not implemented yet")
-
-}
 
 func processAnswer(message SparkMessage) {
 	log.Print("Not implemented yet")

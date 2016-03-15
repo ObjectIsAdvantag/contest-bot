@@ -2,19 +2,16 @@
 
 Spark + Tropo gaming app
 
-Can be used for Song or Quizz contests
+Can be used for various contests type: Song, Quizz,...
 
 
-## prep work
+## setup the bot
 
-Add the ContestBot to a Spark room
+- start Spark, create a Contest Room, invite participants
 
-POST ... // adds the bot webhook
-
+- install the ContestBot (see spark/Readme.md) 
 
 ## starting up a contest
-
-Invite participants to your room
 
 /launch : launches a new contest
 - Bot says "new contest starting in XX minutes"
@@ -23,8 +20,8 @@ Invite participants to your room
 
 ## participants
 
-/guess <audio title> : participants make their attempt
-- Bot says whether participant found anwer or not
+/guess &lt;contest attempt&gt; : participants make their attempt
+- Bot says whether participant found the contest answer or not
 -- nice try <participant name>
 -- try again <participant name>
 
@@ -32,7 +29,7 @@ after XX minutes, the bot gives an answer
 
 ## add a contest
 
-/contribute <phone number> <contest answer>
+/contribute &lt;phone number&gt; &lt;contest answer&gt;
 - you get called back to record your contest quizz, song, phrase or whatever will give clues to participants about the contest answer
 
 
@@ -45,5 +42,27 @@ after XX minutes, the bot gives an answer
 - contest rating
 
 - contributors get notified via SMS when their contest is used / found
+
+
+# How to run the ContestBot by yourself
+
+## Configure Tropo
+ 
+see Readme.md in tropo/
+ 
+## Start the Webhook
+
+- set both BOT_SPARK_TOKEN and BOT_TROPO_TOKEN env variables with the tokens provided by Spark and Tropo Developper Portals
+
+``` bash
+export BOT_SPARK_TOKEN="MmIzYTk0MWYtZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZTVhZWExOGEtM2R"
+export BOT_TROPO_TOKEN="73716c7756656ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ4b76464c77544b5a69764673657a4c6574"
+```
+
+- install localtunnel
+- git clone repo
+- go to spark folder
+- make run
+
 
 

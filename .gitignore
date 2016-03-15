@@ -1,0 +1,15 @@
+# devenv
+.idea/
+.vscode/
+
+# build artefacts
+*.exe
+*.debug
+*.test
+
+# runtime artefacts
+log/
+*.db
+
+# private data (api keys...)
+

@@ -8,8 +8,8 @@ import (
 	"log"
 	"fmt"
 	"time"
+	"strings"
 )
-
 
 func main() {
 
@@ -92,9 +92,36 @@ func handler(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Print("Retrived message: %v", message)
+	log.Print("New message: %v", message)
+
+	// Process message
+	go processMessage(message)
 
 	w.WriteHeader(http.StatusOK)
 	return
+}
+
+func processMessage(message SparkMessage) {
+	// /launch
+	if strings.HasPrefix(message.Text, "/launch") {
+		log.Printf("Processing launch command")
+		processLaunch(message)
+		return
+	}
+
+	// /guess
+	if strings.HasPrefix(message.Text, "/guess") {
+		log.Printf("Processing guess command")
+
+		processAnswer(message)
+		return
+	}
+
+	// /contribute
+	if strings.HasPrefix(message.Text, "/contribute") {
+		log.Printf("Processing contribute command")
+		processContribute(message)
+		return
+	}
 }
 

@@ -1,6 +1,6 @@
 # WebHook registration
 
-##  Pick your room ID
+##  Pick a room ID
 
 - Go to https://developer.ciscospark.com/endpoint-rooms-get.html
 
@@ -13,8 +13,7 @@ Authorization	Bearer <your spark token here>
 200 OK
 
 
-
-##  Add the webhook
+##  Add the webhook to the room
 
 - Go to https://developer.ciscospark.com/endpoint-webhooks-post.html
 

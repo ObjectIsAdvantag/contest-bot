@@ -15,9 +15,13 @@ clean:
 
 .PHONY: build
 build: clean goget
-	go build $(GOFLAGS) $(PROGRAM).go
+	go build $(GOFLAGS) *.go
+
+.PHONY: dev
+dev:
+	go run $(GOFLAGS) *.go
 
 .PHONY: run
 run:
-	($(PROGRAM) -port 80801 &)
+	(go run $(GOFLAGS) *.go &)
 	(lt -p 8081 -s contestbot &)

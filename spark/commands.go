@@ -57,7 +57,7 @@ func processLaunch(message SparkMessage) {
 	//contestAudio := "http://soundbible.com/mp3/I%20Love%20You%20Daddy-SoundBible.com-862095235.mp3"
 
 	// Invoke Tropo script, see Readme and file newcontest.js
-	params := fmt.Sprintf("room_sip=%s&replays=%d&botname=%s", room.SipAddress, 3, "ContestBot@tropo.com")
+	params := fmt.Sprintf("room_sip=%s&replays=%d&botname=%s", room.SipAddress, 2, "ContestBot@tropo.com")
 	payload := strings.NewReader(params)
 	req, _ := http.NewRequest("POST",
 		"https://api.tropo.com/1.0/sessions?action=create&token=" + viper.GetString("tropo_token"),

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+	"fmt"
 )
 
 
@@ -53,13 +54,14 @@ func processLaunch(message SparkMessage) {
 	sendMessageToRoom(message.RoomID, "A new contest is starting, are you ready ?")
 
 	// TODO: Pick a contest
-	contestAudio := "http://soundbible.com/mp3/I%20Love%20You%20Daddy-SoundBible.com-862095235.mp3"
+	//contestAudio := "http://soundbible.com/mp3/I%20Love%20You%20Daddy-SoundBible.com-862095235.mp3"
 
-	// Call Tropo
-	payload := strings.NewReader("number=" + room.SipAddress +
-		"&audio=" + contestAudio +
-		"&token=" + viper.GetString("tropo_token"))
-	req, _ := http.NewRequest("POST", "https://api.tropo.com/1.0/sessions?action=create", payload)
+	// Invoke Tropo script, see Readme and file newcontest.js
+	params := fmt.Sprintf("room_sip=%s&replays=%d&botname=%s", room.SipAddress, 3, "ContestBot@tropo.com")
+	payload := strings.NewReader(params)
+	req, _ := http.NewRequest("POST",
+		"https://api.tropo.com/1.0/sessions?action=create&token=" + viper.GetString("tropo_token"),
+		payload)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := http.DefaultClient.Do(req)

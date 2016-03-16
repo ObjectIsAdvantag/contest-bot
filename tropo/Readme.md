@@ -13,6 +13,6 @@ The script can be invoked manually :
 
 ``` bash
 curl -X POST -H "Content-Type: application/x-www-form-urlencoded" 
--d 'token=<token>&number=sip:<roomSIP@ciscospark.com>&audio=http://soundbible.com/mp3/I%20Love%20You%20Daddy-SoundBible.com-862095235.mp3' 
-"https://api.tropo.com/1.0/sessions?action=create"
+-d 'roomsip=<XXXXXXX@ciscospark.com>&audio=<public audio url>&replays=3' 
+"https://api.tropo.com/1.0/sessions?action=create&token=<tropo application voice token>"
 ```

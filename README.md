@@ -1,15 +1,15 @@
 # ContestBot
 
-Spark + Tropo gaming app
+This gaming app can be used for various types of contests: Quizz, Songs
 
-Can be used for various types of contests: Quizz, Songs
+It leverages the Cisco Spark client where the contest is settled, and the Tropo API to play the contest in a Spark Room.
 
 
 ## setup the bot
 
-- start Spark, create a Contest Room, invite participants
+- launch Cisco Spark, create a Contest Room, invite Contest participants
 
-- install the ContestBot (see spark/Readme.md) 
+- install the [ContestBot](spark/Readme.md) 
 
 
 ## starting up a contest
@@ -33,7 +33,7 @@ Quizz example : I travel on the network. My best friend is a scripting language.
 after XX minutes or tries, the bot would give the answer to all participants 
 
 
-## add a contest
+## submit a contest
 
 /contribute &lt;phone number&gt; &lt;contest answer&gt;
 - you get called back to record your contest quizz, song, phrase or whatever will give clues to participants about the contest answer

@@ -1,5 +1,6 @@
+// Spark webhook to be hosted on google app engine
+//
 package main
-
 
 import (
 	"net/http"
@@ -9,23 +10,12 @@ import (
 	"fmt"
 	"time"
 	"strings"
-
-	"github.com/spf13/viper"
 )
 
-func main() {
-
-	// load env variables : BOT_SPARK_TOKEN and BOT_TROPO_TOKEN
-	viper.SetEnvPrefix("bot") // will be uppercased automatically
-	viper.BindEnv("spark_token") // will be uppercased automatically
-	viper.BindEnv("tropo_token") // will be uppercased automatically
-
-	// launch server
-	port := "8080"
-	log.Print("Starting webhook, listening at :", port)
-
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+func init() {
+	// Handlers needs to be placed here for GAE compat
+	http.HandleFunc("/", healthCheckHandler)
+	http.HandleFunc("/spark", sparkHandler)
 }
 
 
@@ -57,8 +47,24 @@ type SparkMessage struct {
 	Text string `json:"text"`
 }
 
+func healthCheckHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{ "message":"I am the ContestBot, you've hitted my HealthCheck endpoint, expecting GET method only here" }`)
+		return
+	}
 
-func handler(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Content-type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `{
+			"description": "I am the ContestBot, you hitted my HealthCheck endpoint successfully",
+			"correctSettings": %v,
+			"sparkURI": "/spark" }`, env.isCorrect)
+	return
+}
+
+func sparkHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		log.Print("Expecting POST method as I am a Spark Webhook")
 		w.WriteHeader(http.StatusOK)
@@ -85,7 +91,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	client.Header.Add("Content-type", "application/json")
-	client.Header.Add("Authorization", "Bearer " + viper.GetString("spark_token"))
+	client.Header.Add("Authorization", "Bearer " + env.sparkToken)
 
 	response, err := http.DefaultClient.Do(client)
 	if err != nil {

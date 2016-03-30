@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"encoding/json"
 	"strings"
-
-	"github.com/spf13/viper"
 	"fmt"
 )
 
@@ -32,7 +30,7 @@ func processLaunch(message SparkMessage) {
 		return
 	}
 	client.Header.Add("Content-type", "application/json")
-	client.Header.Add("Authorization", "Bearer " + viper.GetString("spark_token"))
+	client.Header.Add("Authorization", "Bearer " + env.sparkToken)
 
 	response, err := http.DefaultClient.Do(client)
 	if err != nil {
@@ -60,7 +58,7 @@ func processLaunch(message SparkMessage) {
 	params := fmt.Sprintf("room_sip=%s&replays=%d&botname=%s", room.SipAddress, 2, "ContestBot@tropo.com")
 	payload := strings.NewReader(params)
 	req, _ := http.NewRequest("POST",
-		"https://api.tropo.com/1.0/sessions?action=create&token=" + viper.GetString("tropo_token"),
+		"https://api.tropo.com/1.0/sessions?action=create&token=" + env.tropoToken,
 		payload)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 

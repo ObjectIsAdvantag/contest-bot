@@ -1,28 +1,19 @@
 PROGRAM=webhook
-GOFLAGS= -tags netgo
+GOAPP_CMD=/c/go_appengine/goapp.bat
 
-default: all
 
-.PHONY: all
-all: build run
+default: dev
 
-.PHONY: goget
-goget:
-	go get github.com/spf13/viper
-
-.PHONY: clean
 clean:
 	rm -f $(PROGRAM) $(PROGRAM).exe $(PROGRAM).zip $(PROGRAM).debug
 
-.PHONY: build
-build: clean goget
-	go build $(GOFLAGS) *.go
+tunnel:
+	lt -p 8080 -s contestbot &
 
-.PHONY: dev
 dev:
-	go run $(GOFLAGS) *.go
+	 $(GOAPP_CMD) serve -admin_port 8567
 
-.PHONY: run
-run:
-	(go run $(GOFLAGS) *.go &)
-	(lt -p 8081 -s contestbot &)
+deploy:
+	$(GOAPP_CMD) deploy
+
+

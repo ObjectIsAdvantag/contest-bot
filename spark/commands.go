@@ -3,11 +3,13 @@ package main
 
 import (
 	"time"
-	"log"
 	"net/http"
 	"encoding/json"
 	"strings"
 	"fmt"
+
+	"google.golang.org/appengine/log"
+	"golang.org/x/net/context"
 )
 
 
@@ -21,12 +23,12 @@ type SparkRoom struct {
 }
 
 // launch a new contest
-func processLaunch(message SparkMessage) {
+func processLaunch(ctx context.Context, message SparkMessage) {
 	// Retrieve Room SIP number
 	client, err := http.NewRequest("GET", "https://api.ciscospark.com/v1/rooms/" + message.RoomID + "?showSipAddress=true", nil)
 	if err != nil {
-		log.Printf("Unexpected error, retrieving room details for RoomID: %s ", message.RoomID)
-		sendMessageToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
+		log.Errorf(ctx, "Unexpected error, retrieving room details for RoomID: %s ", message.RoomID)
+		sendMessageToRoom(ctx, message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
 		return
 	}
 	client.Header.Add("Content-type", "application/json")
@@ -34,22 +36,22 @@ func processLaunch(message SparkMessage) {
 
 	response, err := http.DefaultClient.Do(client)
 	if err != nil {
-		log.Printf("Unexpected error while retrieving contents for room with id: %s ", message.RoomID)
-		sendMessageToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
+		log.Errorf(ctx, "Unexpected error while retrieving contents for room with id: %s ", message.RoomID)
+		sendMessageToRoom(ctx, message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
 		return
 	}
 
 	decoder := json.NewDecoder(response.Body)
 	var room SparkRoom
 	if err := decoder.Decode(&room); err != nil {
-		log.Print("Could not parse json to decode SparkRoom")
-		sendMessageToRoom(message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
+		log.Errorf(ctx, "Could not parse json to decode SparkRoom")
+		sendMessageToRoom(ctx, message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
 		return
 	}
-	log.Print("Retrieved room details, sip number is " + room.SipAddress)
+	log.Debugf(ctx, "Retrieved room details, sip number is " + room.SipAddress)
 
 	// Inform participants a contest is starting
-	sendMessageToRoom(message.RoomID, "A new contest is starting, are you ready ?")
+	sendMessageToRoom(ctx, message.RoomID, "A new contest is starting, are you ready ?")
 
 	// TODO: Pick a contest
 	//contestAudio := "http://soundbible.com/mp3/I%20Love%20You%20Daddy-SoundBible.com-862095235.mp3"
@@ -64,27 +66,27 @@ func processLaunch(message SparkMessage) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Printf("Communication error with Tropo, err: %s", err)
-		sendMessageToRoom(message.RoomID, "Contest failed to launch, Sorry for that, Try again later")
+		log.Errorf(ctx,"Communication error with Tropo, err: %s", err)
+		sendMessageToRoom(ctx, message.RoomID, "Contest failed to launch, Sorry for that, Try again later")
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Tropo script invocation error: %s", err)
-		sendMessageToRoom(message.RoomID, "Contest failed to launch, Sorry for that, Try again later")
+		log.Errorf(ctx, "Tropo script invocation error: %s", err)
+		sendMessageToRoom(ctx, message.RoomID, "Contest failed to launch, Sorry for that, Try again later")
 		return
 	}
 
-	log.Print("New contest launched successfully")
+	log.Infof(ctx, "New contest launched successfully")
 }
 
 
-func processAnswer(message SparkMessage) {
-	log.Print("Not implemented yet")
+func processAnswer(ctx context.Context, message SparkMessage) {
+	log.Warningf(ctx, "Not implemented yet")
 }
 
 
-func processContribute(message SparkMessage) {
-	log.Print("Not implemented yet")
+func processContribute(ctx context.Context, message SparkMessage) {
+	log.Warningf(ctx, "Not implemented yet")
 }
 
 

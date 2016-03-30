@@ -1,13 +1,14 @@
 package main
 
 import (
-	"log"
+	"google.golang.org/appengine/log"
+	"golang.org/x/net/context"
 )
 
 // Send message to the room with specified id
-func sendMessageToRoom(roomID string, message string) {
-	log.Printf("Would send message %s to room %s", message, roomID)
-	log.Print("Not implemented yet")
+func sendMessageToRoom(ctx context.Context, roomID string, message string) {
+	log.Debugf(ctx, "Would send message %s to room %s", message, roomID)
+	log.Warningf(ctx, "Not implemented yet")
 }
 
 

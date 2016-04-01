@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/appengine/log"
 	"golang.org/x/net/context"
+"google.golang.org/appengine/urlfetch"
 )
 
 
@@ -34,7 +35,7 @@ func processLaunch(ctx context.Context, message SparkMessage) {
 	client.Header.Add("Content-type", "application/json")
 	client.Header.Add("Authorization", "Bearer " + env.sparkToken)
 
-	response, err := http.DefaultClient.Do(client)
+	response, err := urlfetch.Client(ctx).Do(client)
 	if err != nil {
 		log.Errorf(ctx, "Unexpected error while retrieving contents for room with id: %s ", message.RoomID)
 		sendMessageToRoom(ctx, message.RoomID, "Cannot launch a new context for now, Sorry for that, Try again later")
@@ -51,20 +52,20 @@ func processLaunch(ctx context.Context, message SparkMessage) {
 	log.Debugf(ctx, "Retrieved room details, sip number is " + room.SipAddress)
 
 	// Inform participants a contest is starting
-	sendMessageToRoom(ctx, message.RoomID, "A new contest is starting, are you ready ?")
+	sendMessageToRoom(ctx, message.RoomID, "A new contest is starting, get ready !")
 
 	// TODO: Pick a contest
 	//contestAudio := "http://soundbible.com/mp3/I%20Love%20You%20Daddy-SoundBible.com-862095235.mp3"
 
 	// Invoke Tropo script, see Readme and file newcontest.js
-	params := fmt.Sprintf("room_sip=%s&replays=%d&botname=%s", room.SipAddress, 2, "ContestBot@tropo.com")
+	params := fmt.Sprintf("room_sip=%s&replays=%d&botname=%s", room.SipAddress, 2, "ContestBot@mail.com")
 	payload := strings.NewReader(params)
 	req, _ := http.NewRequest("POST",
 		"https://api.tropo.com/1.0/sessions?action=create&token=" + env.tropoToken,
 		payload)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := urlfetch.Client(ctx).Do(req)
 	if err != nil {
 		log.Errorf(ctx,"Communication error with Tropo, err: %s", err)
 		sendMessageToRoom(ctx, message.RoomID, "Contest failed to launch, Sorry for that, Try again later")

@@ -1,0 +1,12 @@
+application: spark-bot
+version: v1
+runtime: go
+api_version: go1
+
+handlers:
+- url: /.*
+  script: _go_app
+
+env_variables:
+  BOT_SPARK_TOKEN: 'my value'
+  BOT_TROPO_TOKEN: 'my value'

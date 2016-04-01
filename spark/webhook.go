@@ -12,6 +12,7 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
 	"golang.org/x/net/context"
+"google.golang.org/appengine/urlfetch"
 )
 
 func init() {
@@ -98,7 +99,7 @@ func sparkHandler(w http.ResponseWriter, req *http.Request) {
 	client.Header.Add("Content-type", "application/json")
 	client.Header.Add("Authorization", "Bearer " + env.sparkToken)
 
-	response, err := http.DefaultClient.Do(client)
+	response, err := urlfetch.Client(ctx).Do(client)
 	if err != nil {
 		log.Errorf(ctx, "Unexpected error: %s, while retrieving contents for message id: %s ", err, event.ID, event.Data.ID)
 		w.WriteHeader(http.StatusInternalServerError)

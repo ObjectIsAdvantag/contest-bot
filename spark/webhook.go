@@ -116,7 +116,9 @@ func sparkHandler(w http.ResponseWriter, req *http.Request) {
 	log.Infof(ctx, "New message: %v", message)
 
 	// Process message
-	go processMessage(ctx, message)
+	// WORKAROUND : removed // execution for compliance with GAE
+	// go processMessage(ctx, message)
+	processMessage(ctx, message)
 
 	w.WriteHeader(http.StatusOK)
 	return
